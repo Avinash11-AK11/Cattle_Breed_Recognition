@@ -209,8 +209,44 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    // Simulate loading breed database
-    setBreedDatabase(cattleBreeds);
+    // Load breed database from API
+    const loadBreedDatabase = async () => {
+      try {
+        const response = await fetch('http://localhost:8001/breeds');
+        if (response.ok) {
+          const data = await response.json();
+          const breeds = data.breeds || [];
+          
+          // Transform database breeds to match component structure
+          const transformedBreeds = breeds.map(breed => ({
+            id: breed.id,
+            name: breed.name,
+            type: breed.name.includes('Buffalo') ? 'Buffalo' : 'Cattle',
+            origin: breed.region || 'Region not specified',
+            characteristics: 'Breed information from database',
+            milkProduction: breed.milk_yield || 'Milk yield not specified',
+            usage: 'Dairy/Dual purpose',
+            climateAdaptability: 'Adapted to local climate',
+            image: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', // Default image
+            commonRegions: breed.region ? [breed.region] : ['Various regions'],
+            popularity: 'Database breed',
+            priceRange: breed.price_range || 'Price not specified',
+            databaseInfo: breed // Store original database info
+          }));
+          
+          setBreedDatabase(transformedBreeds);
+          console.log(`Loaded ${transformedBreeds.length} breeds from database`);
+        } else {
+          console.error('Failed to load breeds from API, using fallback data');
+          setBreedDatabase(cattleBreeds);
+        }
+      } catch (error) {
+        console.error('Error loading breeds:', error);
+        setBreedDatabase(cattleBreeds);
+      }
+    };
+
+    loadBreedDatabase();
     setNotifications(sampleNotifications);
 
     // Load recent identifications from localStorage
@@ -228,33 +264,72 @@ const Dashboard = () => {
       reader.onload = async (e) => {
         setSelectedImage(e.target.result);
         
-        // Simulate AI breed recognition with progressive confidence
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += 5;
-          setConfidence(progress);
-          if (progress >= 95) {
-            clearInterval(interval);
-            const randomBreed = cattleBreeds[Math.floor(Math.random() * cattleBreeds.length)];
-            setRecognitionResult(randomBreed);
+        // Send image to backend for prediction
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+          const response = await fetch('http://localhost:8001/predict', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('Prediction result:', result);
+            
+            // Create breed result object with database info
+            const breedResult = {
+              id: result.breed_info?.id || Date.now(),
+              name: result.breed,
+              type: result.breed_info?.name?.includes('Buffalo') ? 'Buffalo' : 'Cattle',
+              origin: result.breed_info?.region || 'Region not specified',
+              characteristics: 'AI-identified breed from your database',
+              milkProduction: result.breed_info?.milk_yield || 'Milk yield not specified',
+              usage: 'Dairy/Dual purpose',
+              climateAdaptability: 'Adapted to local climate',
+              image: e.target.result, // Use uploaded image
+              commonRegions: result.breed_info?.region ? [result.breed_info.region] : ['Various regions'],
+              popularity: 'Database breed',
+              // Add database-specific info
+              seasonalInfo: result.seasonal_info,
+              priceRange: result.breed_info?.price_range || 'Price not specified'
+            };
+            
+            setRecognitionResult(breedResult);
+            setConfidence(result.confidence * 100);
             
             // Add to recent identifications
             const newIdentification = {
               id: Date.now(),
-              breed: randomBreed.name,
-              type: randomBreed.type,
+              breed: result.breed,
+              type: breedResult.type,
               timestamp: new Date().toISOString(),
               image: e.target.result,
-              confidence: 95
+              confidence: result.confidence * 100
             };
             
             const updatedIdentifications = [newIdentification, ...recentIdentifications].slice(0, 5);
             setRecentIdentifications(updatedIdentifications);
             localStorage.setItem('recentIdentifications', JSON.stringify(updatedIdentifications));
             
-            setIsProcessing(false);
+          } else {
+            alert('Error processing image. Please try again.');
+            // Fallback to mock data
+            const randomBreed = cattleBreeds[Math.floor(Math.random() * cattleBreeds.length)];
+            setRecognitionResult(randomBreed);
+            setConfidence(85);
           }
-        }, 100);
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error connecting to server. Using offline mode.');
+          // Fallback to mock data
+          const randomBreed = cattleBreeds[Math.floor(Math.random() * cattleBreeds.length)];
+          setRecognitionResult(randomBreed);
+          setConfidence(75);
+        }
+        
+        setIsProcessing(false);
       };
       reader.readAsDataURL(file);
     }
@@ -716,21 +791,56 @@ const Dashboard = () => {
                         </div>
                         <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
                           <p className="text-sm text-purple-600 font-semibold mb-1">
-                            Seasonal Diseases
+                            Price Range
                           </p>
                           <p className="text-lg font-bold text-purple-800">
-                            Low Risk
+                            {recognitionResult.priceRange || 'Price not specified'}
                           </p>
                         </div>
                         <div className="bg-white rounded-xl p-4 border border-orange-100 shadow-sm">
                           <p className="text-sm text-orange-600 font-semibold mb-1">
-                            Nutrition
+                            Database Info
                           </p>
                           <p className="text-lg font-bold text-orange-800">
-                            High Quality
+                            {recognitionResult.seasonalInfo ? `${recognitionResult.seasonalInfo.length} seasons` : 'Available'}
                           </p>
                         </div>
                       </div>
+
+                      {/* Seasonal Information from Database */}
+                      {recognitionResult.seasonalInfo && recognitionResult.seasonalInfo.length > 0 && (
+                        <div className="mb-6 bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                          <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                            <Calendar className="h-5 w-5 mr-2" />
+                            Seasonal Care Information
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {recognitionResult.seasonalInfo.slice(0, 2).map((season, index) => (
+                              <div key={index} className="border border-gray-100 rounded-lg p-4">
+                                <h5 className="font-semibold text-gray-800 mb-2 capitalize">
+                                  {season.season}
+                                </h5>
+                                <div className="mb-2">
+                                  <p className="text-sm text-red-600 font-medium">Common Diseases:</p>
+                                  <p className="text-sm text-gray-600">{season.diseases?.substring(0, 100)}...</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-green-600 font-medium">Nutrition:</p>
+                                  <p className="text-sm text-gray-600">{season.nutrition?.substring(0, 100)}...</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {recognitionResult.seasonalInfo.length > 2 && (
+                            <button
+                              onClick={() => setShowBreedInfo(true)}
+                              className="mt-4 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                            >
+                              View all {recognitionResult.seasonalInfo.length} seasonal care guides →
+                            </button>
+                          )}
+                        </div>
+                      )}
 
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-3">
@@ -1153,85 +1263,76 @@ const Dashboard = () => {
                     </button>
                   </div>
 
-                  {/* Breeds Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Breeds List */}
+                  <div className="space-y-4">
                     {filteredBreeds.map((breed) => (
                       <div
                         key={breed.id}
-                        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+                        className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow cursor-pointer group"
                         onClick={() => handleBreedSelection(breed)}
                       >
-                        <div className="h-48 bg-gray-200 overflow-hidden">
-                          <img
-                            src={breed.image}
-                            alt={breed.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
-                        <div className="p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-lg font-semibold text-gray-800">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-1">
                               {breed.name}
                             </h3>
-                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                            <span className="inline-block text-sm px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
                               {breed.type}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {breed.origin}
-                          </p>
-                          <p className="text-sm text-gray-500 mb-3 line-clamp-2">
-                            {breed.characteristics}
-                          </p>
-
-                          <div className="space-y-2 text-xs text-gray-600">
-                            <div className="flex justify-between">
-                              <span>Milk Production:</span>
-                              <span className="font-medium">
-                                {breed.milkProduction}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Usage:</span>
-                              <span className="font-medium">{breed.usage}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Climate:</span>
-                              <span className="font-medium">
-                                {breed.climateAdaptability}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Popularity:</span>
-                              <span
-                                className={`font-medium ${
-                                  breed.popularity === "Very High"
-                                    ? "text-green-600"
-                                    : breed.popularity === "High"
-                                    ? "text-blue-600"
-                                    : "text-gray-600"
-                                }`}
-                              >
-                                {breed.popularity}
-                              </span>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">Database ID</p>
+                            <p className="text-xs text-gray-400 font-mono">{breed.id.toString().slice(0, 8)}...</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                          <div>
+                            <p className="text-sm font-semibold text-gray-700 mb-1">Region</p>
+                            <p className="text-sm text-gray-600">{breed.origin}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-700 mb-1">Milk Production</p>
+                            <p className="text-sm text-gray-600">{breed.milkProduction}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-700 mb-1">Price Range</p>
+                            <p className="text-sm text-gray-600">{breed.priceRange}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Additional Database Info */}
+                        {breed.databaseInfo && (
+                          <div className="pt-3 border-t border-gray-100">
+                            <p className="text-xs text-gray-500 mb-2">Additional Information</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <span className="text-xs font-medium text-gray-600">Usage: </span>
+                                <span className="text-xs text-gray-500">{breed.usage}</span>
+                              </div>
+                              <div>
+                                <span className="text-xs font-medium text-gray-600">Climate: </span>
+                                <span className="text-xs text-gray-500">{breed.climateAdaptability}</span>
+                              </div>
                             </div>
                           </div>
+                        )}
+                        
+                        <div className="mt-3 text-right">
+                          <button className="text-green-600 hover:text-green-700 text-sm font-medium">
+                            View Details →
+                          </button>
                         </div>
                       </div>
                     ))}
+                    
+                    {filteredBreeds.length === 0 && (
+                      <div className="text-center py-8">
+                        <Database className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-gray-500">No breeds found matching your search.</p>
+                      </div>
+                    )}
                   </div>
-
-                  {filteredBreeds.length === 0 && (
-                    <div className="text-center py-12">
-                      <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-800 mb-2">
-                        No breeds found
-                      </h3>
-                      <p className="text-gray-600">
-                        Try adjusting your search terms or filters
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             )}
