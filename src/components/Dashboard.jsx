@@ -220,14 +220,14 @@ const Dashboard = () => {
     }
   }, []);
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       setIsProcessing(true);
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         setSelectedImage(e.target.result);
-
+        
         // Simulate AI breed recognition with progressive confidence
         let progress = 0;
         const interval = setInterval(() => {
@@ -235,10 +235,9 @@ const Dashboard = () => {
           setConfidence(progress);
           if (progress >= 95) {
             clearInterval(interval);
-            const randomBreed =
-              cattleBreeds[Math.floor(Math.random() * cattleBreeds.length)];
+            const randomBreed = cattleBreeds[Math.floor(Math.random() * cattleBreeds.length)];
             setRecognitionResult(randomBreed);
-
+            
             // Add to recent identifications
             const newIdentification = {
               id: Date.now(),
@@ -246,19 +245,13 @@ const Dashboard = () => {
               type: randomBreed.type,
               timestamp: new Date().toISOString(),
               image: e.target.result,
-              confidence: 95,
+              confidence: 95
             };
-
-            const updatedIdentifications = [
-              newIdentification,
-              ...recentIdentifications,
-            ].slice(0, 5);
+            
+            const updatedIdentifications = [newIdentification, ...recentIdentifications].slice(0, 5);
             setRecentIdentifications(updatedIdentifications);
-            localStorage.setItem(
-              "recentIdentifications",
-              JSON.stringify(updatedIdentifications)
-            );
-
+            localStorage.setItem('recentIdentifications', JSON.stringify(updatedIdentifications));
+            
             setIsProcessing(false);
           }
         }, 100);
