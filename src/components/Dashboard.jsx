@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileScreen from './ProfileScreen';
+import HelpSupportScreen from './HelpSupportScreen';
 import { 
   Camera, Upload, CheckCircle, XCircle, ArrowRight, 
   Home, BarChart3, BookOpen, ClipboardList, Settings,
@@ -247,7 +248,8 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 flex font-inter">
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-green-900 to-green-800 text-white transform transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-screen">
+          {/* Header */}
           <div className="p-5 border-b border-green-700 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -268,7 +270,8 @@ const Dashboard = () => {
             </div>
           </div>
           
-          <nav className="flex-1 p-4 overflow-y-auto">
+          {/* Main Navigation */}
+          <div className="p-4 flex-shrink-0">
             <ul className="space-y-2">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
@@ -296,27 +299,28 @@ const Dashboard = () => {
                 );
               })}
             </ul>
-            
-            <div className="mt-8 pt-6 border-t border-green-700">
+          </div>
+          
+          {/* Support Section */}
+          <div className="p-4 flex-shrink-0">
+            <div className="pt-6 border-t border-green-700">
               <h3 className="px-4 text-xs uppercase text-green-300 font-semibold mb-3">Support</h3>
               <ul className="space-y-2">
                 <li>
-                  <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-green-100 hover:bg-green-700 hover:text-white transition-colors">
+                  <button 
+                    onClick={() => setActiveNav('help')}
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-green-100 hover:bg-green-700 hover:text-white transition-colors"
+                  >
                     <HelpCircle className="h-5 w-5" />
                     <span>Help & Support</span>
                   </button>
                 </li>
-                <li>
-                  <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-green-100 hover:bg-green-700 hover:text-white transition-colors">
-                    <Phone className="h-5 w-5" />
-                    <span>Contact Us</span>
-                  </button>
-                </li>
               </ul>
             </div>
-          </nav>
+          </div>
           
-          <div className="p-4 border-t border-green-700 flex-shrink-0">
+          {/* Sign Out */}
+          <div className="p-4 border-t border-green-700 flex-shrink-0 mt-auto">
             <button 
               onClick={handleSignOut}
               className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-green-100 hover:bg-green-700 hover:text-white transition-colors"
@@ -344,6 +348,7 @@ const Dashboard = () => {
                 {activeNav === 'dashboard' && 'BPA-Integrated Breed Recognition Dashboard'}
                 {activeNav === 'breedDB' && 'Breed Database'}
                 {activeNav === 'profile' && 'My Profile'}
+                {activeNav === 'help' && 'Help & Support Center'}
                 {activeNav === 'settings' && 'Settings'}
               </h1>
             </div>
@@ -928,6 +933,14 @@ const Dashboard = () => {
                 <ProfileScreen />
               </div>
             )}
+
+            {/* Help & Support View */}
+            {activeNav === 'help' && (
+              <div className="space-y-6">
+                <HelpSupportScreen />
+              </div>
+            )}
+
           </div>
         </main>
       </div>
