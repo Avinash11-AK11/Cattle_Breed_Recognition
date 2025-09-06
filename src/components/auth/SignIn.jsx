@@ -1,45 +1,75 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Chrome, Phone } from 'lucide-react';
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { Mail, Lock, Eye, EyeOff, Chrome, Phone } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [authMode, setAuthMode] = useState('email'); // 'email' or 'phone'
+  const [authMode, setAuthMode] = useState("email"); // 'email' or 'phone'
   const { signIn, signInWithGoogle, sendPhoneOtp, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
 
-    const { data } = await signIn(email, password);
-    if (data.user) {
-      navigate(from, { replace: true });
+    try {
+      const { data, error } = await signIn(email, password);
+      if (error) {
+        toast.error(error.message || "Sign in failed");
+        return;
+      }
+      if (data.user) {
+        toast.success("Welcome back!");
+        navigate(from, { replace: true });
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
     }
   };
 
   const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        toast.error(error.message || "Google sign in failed");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    }
   };
 
   const handlePhoneSignIn = async (e) => {
     e.preventDefault();
-    if (!phone) return;
+    if (!phone) {
+      toast.error("Please enter your phone number");
+      return;
+    }
 
-    // Allow creating the user if it doesn't exist to avoid
-    // "Signups not allowed for otp" when signups are permitted
-    const { data } = await sendPhoneOtp(phone);
-    if (data) {
-      navigate('/auth/verify-otp', { 
-        state: { phone, from } 
-      });
+    try {
+      const { data, error } = await sendPhoneOtp(phone);
+      if (error) {
+        toast.error(error.message || "Failed to send OTP");
+        return;
+      }
+      if (data) {
+        toast.success("OTP sent successfully!");
+        navigate("/auth/verify-otp", {
+          state: { phone, from },
+        });
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
     }
   };
 
@@ -61,32 +91,35 @@ const SignIn = () => {
           <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
             <button
               type="button"
-              onClick={() => setAuthMode('email')}
+              onClick={() => setAuthMode("email")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                authMode === 'email'
-                  ? 'bg-white text-emerald-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                authMode === "email"
+                  ? "bg-white text-emerald-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Email
             </button>
             <button
               type="button"
-              onClick={() => setAuthMode('phone')}
+              onClick={() => setAuthMode("phone")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                authMode === 'phone'
-                  ? 'bg-white text-emerald-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                authMode === "phone"
+                  ? "bg-white text-emerald-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Phone
             </button>
           </div>
 
-          {authMode === 'email' ? (
+          {authMode === "email" ? (
             <form onSubmit={handleEmailSignIn} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email Address
                 </label>
                 <div className="relative">
@@ -99,14 +132,17 @@ const SignIn = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="appearance-none block w-full h-12 pl-10 pr-3 border border-gray-200 rounded-xl placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white"
                     placeholder="Enter your email"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -115,23 +151,24 @@ const SignIn = () => {
                   </div>
                   <input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="appearance-none block w-full h-12 pl-10 pr-12 border border-gray-200 rounded-xl placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white"
                     placeholder="Enter your password"
                   />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="p-1 text-gray-500 hover:text-gray-700 focus:outline-none"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -147,19 +184,22 @@ const SignIn = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
               >
                 {loading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 ) : (
-                  'Sign In'
+                  "Sign In"
                 )}
               </button>
             </form>
           ) : (
             <form onSubmit={handlePhoneSignIn} className="space-y-6">
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Phone Number
                 </label>
                 <div className="relative">
@@ -172,7 +212,7 @@ const SignIn = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
-                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="appearance-none block w-full h-12 pl-10 pr-3 border border-gray-200 rounded-xl placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white"
                     placeholder="+91 98765 43210"
                   />
                 </div>
@@ -184,12 +224,12 @@ const SignIn = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
               >
                 {loading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 ) : (
-                  'Send OTP'
+                  "Send OTP"
                 )}
               </button>
             </form>
@@ -201,7 +241,9 @@ const SignIn = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -218,7 +260,7 @@ const SignIn = () => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link
                 to="/auth/signup"
                 className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors"
@@ -244,7 +286,8 @@ const SignIn = () => {
               Cattle Breed Recognition
             </h1>
             <p className="text-xl opacity-90">
-              Advanced AI-powered identification for Indian cattle and buffalo breeds
+              Advanced AI-powered identification for Indian cattle and buffalo
+              breeds
             </p>
           </div>
         </div>

@@ -10,6 +10,7 @@ import VerifyOTP from './components/auth/VerifyOTP';
 import VerificationSent from './components/auth/VerificationSent';
 import AuthCallback from './components/auth/AuthCallback';
 import Dashboard from './components/Dashboard';
+import SettingsScreen from './components/dashboard/setting';
 import './App.css';
 
 function App() {
@@ -34,6 +35,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsScreen />
                 </ProtectedRoute>
               }
             />
