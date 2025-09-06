@@ -29,6 +29,8 @@ const Dashboard = () => {
   const [activeLivestockTab, setActiveLivestockTab] = useState('cattle');
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [reviewDescription, setReviewDescription] = useState('');
+  const [showReviewSection, setShowReviewSection] = useState(false);
 
   // Sample breed database with detailed information
   const cattleBreeds = [
@@ -203,8 +205,19 @@ const Dashboard = () => {
   };
 
   const handleConfirmBreed = () => {
-    alert(`Breed confirmed! Data for ${recognitionResult.name} has been sent to Bharat Pashudhan App.`);
+    setShowReviewSection(true);
+  };
+
+  const handleSubmitReview = () => {
+    alert(`Review submitted! Breed: ${recognitionResult.name}, Description: ${reviewDescription}`);
+    setShowReviewSection(false);
+    setReviewDescription('');
     // Here we would integrate with the actual BPA API
+  };
+
+  const handleCancelReview = () => {
+    setShowReviewSection(false);
+    setReviewDescription('');
   };
 
   const handleCorrectBreed = () => {
@@ -250,7 +263,7 @@ const Dashboard = () => {
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-green-900 to-green-800 text-white transform transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-screen">
           {/* Header */}
-          <div className="p-5 border-b border-green-700 flex-shrink-0">
+          <div className="p-5 border-b border-green-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
@@ -271,7 +284,7 @@ const Dashboard = () => {
           </div>
           
           {/* Main Navigation */}
-          <div className="p-4 flex-shrink-0">
+          <div className="p-4 flex-1">
             <ul className="space-y-2">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
@@ -299,11 +312,9 @@ const Dashboard = () => {
                 );
               })}
             </ul>
-          </div>
           
           {/* Support Section */}
-          <div className="p-4 flex-shrink-0">
-            <div className="pt-6 border-t border-green-700">
+            <div className="pt-6 border-t border-green-700 mt-6">
               <h3 className="px-4 text-xs uppercase text-green-300 font-semibold mb-3">Support</h3>
               <ul className="space-y-2">
                 <li>
@@ -320,7 +331,7 @@ const Dashboard = () => {
           </div>
           
           {/* Sign Out */}
-          <div className="p-4 border-t border-green-700 flex-shrink-0 mt-auto">
+          <div className="p-4 border-t border-green-700">
             <button 
               onClick={handleSignOut}
               className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-green-100 hover:bg-green-700 hover:text-white transition-colors"
@@ -389,12 +400,6 @@ const Dashboard = () => {
                 )}
               </div>
               
-              <div className="flex items-center space-x-3 bg-green-50 rounded-full pl-3 pr-4 py-1 border border-green-200">
-                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center shadow-md">
-                  <User className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-sm font-medium text-green-800">Field Worker</span>
-              </div>
             </div>
           </div>
         </header>
@@ -468,322 +473,232 @@ const Dashboard = () => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left Column - Image Upload and Stats */}
-                  <div className="lg:col-span-2 space-y-6">
                     {/* Image-Based Breed Recognition Section */}
-                    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                      <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-semibold text-gray-800">Image-Based Breed Recognition</h2>
-                        <div className="flex items-center text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                          <Cpu className="h-4 w-4 mr-1" />
+                <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100 mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800">Image-Based Breed Recognition</h2>
+                    <div className="flex items-center text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full shadow-md">
+                      <Cpu className="h-4 w-4 mr-2" />
                           AI Powered
                         </div>
                       </div>
-                      <p className="text-gray-600 mb-6 leading-relaxed">
+                  <p className="text-gray-600 mb-8 leading-relaxed text-lg">
                         Upload an image or use your camera to identify the breed of cattle or buffalo. 
                         Our AI model will provide a confidence score and allow for seamless data integration 
                         with the Bharat Pashudhan App.
                       </p>
 
-                      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="flex flex-col sm:flex-row gap-6 mb-8">
                         <label className="flex-1 cursor-pointer group">
                           <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                          <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-gray-300 rounded-xl group-hover:border-green-500 group-hover:bg-green-50 transition-all duration-200 p-4">
-                            <Upload className="h-10 w-10 text-gray-400 group-hover:text-green-600 mb-2 transition-colors" />
-                            <span className="text-gray-600 group-hover:text-green-800 text-center transition-colors">
+                      <div className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-gray-300 rounded-2xl group-hover:border-green-500 group-hover:bg-gradient-to-br group-hover:from-green-50 group-hover:to-green-100 transition-all duration-300 p-6 shadow-sm hover:shadow-md">
+                        <Upload className="h-12 w-12 text-gray-400 group-hover:text-green-600 mb-3 transition-colors" />
+                        <span className="text-gray-600 group-hover:text-green-800 text-center transition-colors font-medium text-lg">
                               Upload Image
                             </span>
-                            <p className="text-xs text-gray-500 mt-1">JPG, PNG or HEIC</p>
+                        <p className="text-sm text-gray-500 mt-2">JPG, PNG or HEIC</p>
                           </div>
                         </label>
                         
                         <button 
                           onClick={handleCameraCapture}
-                          className="flex-1 flex flex-col items-center justify-center h-40 border-2 border-dashed border-gray-300 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all duration-200 p-4 group"
+                      className="flex-1 flex flex-col items-center justify-center h-48 border-2 border-dashed border-gray-300 rounded-2xl hover:border-green-500 hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100 transition-all duration-300 p-6 group shadow-sm hover:shadow-md"
                         >
-                          <Camera className="h-10 w-10 text-gray-400 group-hover:text-green-600 mb-2 transition-colors" />
-                          <span className="text-gray-600 group-hover:text-green-800 text-center transition-colors">
+                      <Camera className="h-12 w-12 text-gray-400 group-hover:text-green-600 mb-3 transition-colors" />
+                      <span className="text-gray-600 group-hover:text-green-800 text-center transition-colors font-medium text-lg">
                             Use Camera
                           </span>
-                          <p className="text-xs text-gray-500 mt-1">Real-time capture</p>
+                      <p className="text-sm text-gray-500 mt-2">Real-time capture</p>
                         </button>
                       </div>
 
                       {selectedImage && (
-                        <div className="mb-6">
-                          <h3 className="text-lg font-medium text-gray-800 mb-3">Uploaded Image</h3>
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold text-gray-800 mb-4">Uploaded Image</h3>
                           <div className="flex justify-center">
                             <img 
                               src={selectedImage} 
                               alt="Uploaded cattle" 
-                              className="max-h-64 rounded-lg object-cover shadow-md"
+                          className="max-h-80 rounded-2xl object-cover shadow-lg"
                             />
                           </div>
                         </div>
                       )}
 
                       {isProcessing && (
-                        <div className="mb-6">
-                          <h3 className="text-lg font-medium text-gray-800 mb-3">Processing Image</h3>
-                          <div className="w-full bg-gray-200 rounded-full h-4">
-                            <div 
-                              className="bg-gradient-to-r from-green-500 to-green-600 h-4 rounded-full transition-all duration-300"
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold text-gray-800 mb-4">Processing Image</h3>
+                      <div className="w-full bg-gray-200 rounded-full h-6 shadow-inner">
+                        <div 
+                          className="bg-gradient-to-r from-green-500 to-green-600 h-6 rounded-full transition-all duration-300 shadow-sm"
                               style={{ width: `${confidence}%` }}
                             ></div>
                           </div>
-                          <p className="text-center text-gray-600 mt-2">Analyzing breed characteristics... {confidence}%</p>
+                      <p className="text-center text-gray-600 mt-3 text-lg">Analyzing breed characteristics... {confidence}%</p>
                         </div>
                       )}
 
-                      {/* Knowledge Centre, Services and Reports in a row */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                        {/* Knowledge Centre Section */}
-                        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5 border border-green-200 hover:shadow-md transition-shadow">
-                          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                            <BookOpen className="h-5 w-5 mr-2 text-green-600" />
-                            Knowledge Centre
+                  {/* Recognition Result Section */}
+                  {recognitionResult && !showBreedInfo && (
+                    <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8 border border-green-200 shadow-lg">
+                      <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <CheckCircle className="h-6 w-6 mr-3 text-green-600" />
+                        Recognition Result
                           </h2>
-                          <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                            Access articles, best practices, and breed-specific information to enhance your fieldwork.
-                          </p>
-                          <div className="space-y-3 mb-4">
-                            <div className="flex items-center text-sm p-2 hover:bg-white rounded-lg cursor-pointer transition-colors group">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm group-hover:bg-green-100 transition-colors">
-                                <Heart className="h-4 w-4 text-green-600" />
-                              </div>
-                              <span>Animal Health & Nutrition</span>
-                            </div>
-                            <div className="flex items-center text-sm p-2 hover:bg-white rounded-lg cursor-pointer transition-colors group">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm group-hover:bg-green-100 transition-colors">
-                                <Activity className="h-4 w-4 text-green-600" />
-                              </div>
-                              <span>Breeding Best Practices</span>
-                            </div>
-                            <div className="flex items-center text-sm p-2 hover:bg-white rounded-lg cursor-pointer transition-colors group">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm group-hover:bg-green-100 transition-colors">
-                                <Shield className="h-4 w-4 text-green-600" />
-                              </div>
-                              <span>Disease Prevention</span>
-                            </div>
-                          </div>
-                          <button className="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-2.5 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
-                            Explore More <ArrowRight className="h-4 w-4" />
-                          </button>
-                        </div>
-
-                        {/* Services Section */}
-                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200 hover:shadow-md transition-shadow">
-                          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                            <ClipboardList className="h-5 w-5 mr-2 text-blue-600" />
-                            Services
-                          </h2>
-                          <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                            Find information on vaccination schedules, breeding services, and more.
-                          </p>
-                          <div className="grid grid-cols-2 gap-3 mb-4">
-                            <div className="bg-white rounded-lg p-3 text-center cursor-pointer hover:bg-blue-100 transition-colors shadow-sm group">
-                              <Calendar className="h-6 w-6 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                              <span className="text-xs font-medium text-blue-800">Vaccination</span>
-                            </div>
-                            <div className="bg-white rounded-lg p-3 text-center cursor-pointer hover:bg-blue-100 transition-colors shadow-sm group">
-                              <Activity className="h-6 w-6 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                              <span className="text-xs font-medium text-blue-800">Breeding</span>
-                            </div>
-                            <div className="bg-white rounded-lg p-3 text-center cursor-pointer hover:bg-blue-100 transition-colors shadow-sm group">
-                              <Heart className="h-6 w-6 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                              <span className="text-xs font-medium text-blue-800">Health</span>
-                            </div>
-                            <div className="bg-white rounded-lg p-3 text-center cursor-pointer hover:bg-blue-100 transition-colors shadow-sm group">
-                              <Database className="h-6 w-6 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                              <span className="text-xs font-medium text-blue-800">Records</span>
-                            </div>
-                          </div>
-                          <button className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                            Explore More <ArrowRight className="h-4 w-4" />
-                          </button>
-                        </div>
-
-                        {/* Reports Section */}
-                        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 border border-purple-200 hover:shadow-md transition-shadow">
-                          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                            <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
-                            Reports
-                          </h2>
-                          <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                            Generate and view reports on livestock health and productivity.
-                          </p>
-                          <div className="space-y-3 mb-4">
-                            <div className="flex items-center text-sm p-2 hover:bg-white rounded-lg cursor-pointer transition-colors group">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm group-hover:bg-purple-100 transition-colors">
-                                <FileText className="h-4 w-4 text-purple-600" />
-                              </div>
-                              <span>Monthly Identification Report</span>
-                            </div>
-                            <div className="flex items-center text-sm p-2 hover:bg-white rounded-lg cursor-pointer transition-colors group">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm group-hover:bg-purple-100 transition-colors">
-                                <TrendingUp className="h-4 w-4 text-purple-600" />
-                              </div>
-                              <span>Breed Popularity Analysis</span>
-                            </div>
-                            <div className="flex items-center text-sm p-2 hover:bg-white rounded-lg cursor-pointer transition-colors group">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm group-hover:bg-purple-100 transition-colors">
-                                <Users className="h-4 w-4 text-purple-600" />
-                              </div>
-                              <span>Field Worker Performance</span>
-                            </div>
-                          </div>
-                          <button className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-2.5 px-4 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
-                            Explore More <ArrowRight className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-
-                      <hr className="my-6 border-gray-200" />
-
-                      {/* Recent Identifications */}
-                      {recentIdentifications.length > 0 && (
-                        <div className="mt-6">
-                          <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-medium text-gray-800">Recent Identifications</h3>
-                            <button className="text-sm text-green-600 hover:text-green-800 font-medium flex items-center">
-                              View All <ChevronRight className="h-4 w-4 ml-1" />
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {recentIdentifications.map((item) => (
-                              <div key={item.id} className="bg-gray-50 rounded-lg p-3 flex items-center space-x-3 border border-gray-200 hover:shadow-md transition-shadow group">
-                                <div className="w-12 h-12 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
-                                  <img src={item.image} alt={item.breed} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-gray-800 truncate">{item.breed}</p>
-                                  <div className="flex items-center text-sm text-gray-500">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    <span>{new Date(item.timestamp).toLocaleDateString()}</span>
-                                  </div>
-                                </div>
-                                <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                  {item.confidence}%
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right Column - Recognition Result and Modules */}
-                  <div className="lg:col-span-1 space-y-6">
-                    {recognitionResult && !showBreedInfo && (
-                      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Recognition Result</h2>
-                        
-                        <div className="flex items-start mb-4">
-                          <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                      
+                      <div className="flex items-start mb-6">
+                        <div className="w-20 h-20 bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0 shadow-md">
                             <img src={recognitionResult.image} alt={recognitionResult.name} className="w-full h-full object-cover" />
                           </div>
-                          <div>
-                            <h3 className="text-lg font-bold text-green-700">{recognitionResult.name}</h3>
-                            <div className="flex items-center text-sm text-gray-500">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              <span>Origin: {recognitionResult.origin}</span>
+                        <div className="flex-1">
+                          <h3 className="text-2xl font-bold text-green-700 mb-2">{recognitionResult.name}</h3>
+                          <div className="flex items-center text-gray-600 mb-2">
+                            <MapPin className="h-5 w-5 mr-2" />
+                            <span className="text-lg">Origin: {recognitionResult.origin}</span>
                             </div>
+                          <p className="text-gray-600 text-lg leading-relaxed">{recognitionResult.characteristics}</p>
                           </div>
                         </div>
                         
-                        <p className="text-gray-600 mb-4 leading-relaxed text-sm">{recognitionResult.characteristics}</p>
-
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                          <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                            <p className="text-xs text-green-600 font-medium">Milk Production</p>
-                            <p className="text-sm font-semibold text-green-800">{recognitionResult.milkProduction}</p>
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="bg-white rounded-xl p-4 border border-green-100 shadow-sm">
+                          <p className="text-sm text-green-600 font-semibold mb-1">Milk Production</p>
+                          <p className="text-lg font-bold text-green-800">{recognitionResult.milkProduction}</p>
                           </div>
-                          <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                            <p className="text-xs text-blue-600 font-medium">Primary Usage</p>
-                            <p className="text-sm font-semibold text-blue-800">{recognitionResult.usage}</p>
+                        <div className="bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
+                          <p className="text-sm text-blue-600 font-semibold mb-1">Usage</p>
+                          <p className="text-lg font-bold text-blue-800">{recognitionResult.usage}</p>
+                          </div>
+                        <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
+                          <p className="text-sm text-purple-600 font-semibold mb-1">Seasonal Diseases</p>
+                          <p className="text-lg font-bold text-purple-800">Low Risk</p>
+                          </div>
+                        <div className="bg-white rounded-xl p-4 border border-orange-100 shadow-sm">
+                          <p className="text-sm text-orange-600 font-semibold mb-1">Nutrition</p>
+                          <p className="text-lg font-bold text-orange-800">High Quality</p>
                           </div>
                         </div>
 
                         <div className="mb-6">
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="text-sm font-medium text-gray-700">Confidence Score</h4>
-                            <span className="text-sm font-bold text-gray-800">{confidence}%</span>
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="text-lg font-semibold text-gray-700">Confidence Score</h4>
+                          <span className="text-xl font-bold text-gray-800">{confidence}%</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div className="w-full bg-gray-200 rounded-full h-4 shadow-inner">
                             <div 
-                              className="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full"
+                            className="bg-gradient-to-r from-green-500 to-green-600 h-4 rounded-full shadow-sm"
                               style={{ width: `${confidence}%` }}
                             ></div>
                           </div>
                         </div>
 
-                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                      <p className="text-gray-600 mb-6 leading-relaxed text-lg">
                           Is this correct? As an FLW, you can confirm or correct the breed entry before sending it to the Bharat Pashudhan App.
                         </p>
 
-                        <div className="flex gap-3 mb-6">
+                      <div className="flex gap-4 mb-6">
                           <button 
                             onClick={handleConfirmBreed}
-                            className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-4 rounded-xl hover:bg-green-700 transition-colors shadow-md hover:shadow-lg font-medium"
+                          className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-green-600 to-green-700 text-white py-4 px-6 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-lg"
                           >
-                            <CheckCircle className="h-5 w-5" />
+                          <CheckCircle className="h-6 w-6" />
                             Confirm & Send
                           </button>
                           <button 
                             onClick={handleCorrectBreed}
-                            className="flex-1 flex items-center justify-center gap-2 bg-gray-200 text-gray-800 py-3 px-4 rounded-xl hover:bg-gray-300 transition-colors font-medium"
+                          className="flex-1 flex items-center justify-center gap-3 bg-gray-200 text-gray-800 py-4 px-6 rounded-xl hover:bg-gray-300 transition-all duration-200 font-semibold text-lg"
                           >
-                            <XCircle className="h-5 w-5" />
+                          <XCircle className="h-6 w-6" />
                             Correct Breed
                           </button>
                         </div>
 
-                        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                          <h4 className="font-semibold text-green-800 mb-2 flex items-center">
-                            <Shield className="h-5 w-5 mr-2" />
+                      <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-6 border border-green-300">
+                        <h4 className="font-bold text-green-800 mb-3 flex items-center text-lg">
+                          <Shield className="h-6 w-6 mr-3" />
                             Bharat Pashudhan Mission
                           </h4>
-                          <p className="text-sm text-green-700 leading-relaxed">
+                        <p className="text-green-700 leading-relaxed text-lg">
                             To assign a unique Pashu Aadhaar to each animal for end-to-end traceability, enhancing disease control and productivity.
                           </p>
                         </div>
+
+                      {/* FWS Review Section */}
+                      {showReviewSection && (
+                        <div className="mt-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-300 shadow-lg">
+                          <h4 className="font-bold text-blue-800 mb-4 flex items-center text-lg">
+                            <Star className="h-6 w-6 mr-3" />
+                            Field Worker Review
+                          </h4>
+                          <p className="text-blue-700 mb-4 text-lg">
+                            Please provide your review and additional observations about this breed identification.
+                          </p>
+                          <div className="mb-4">
+                            <label className="block text-lg font-semibold text-gray-700 mb-3">
+                              Description & Observations
+                            </label>
+                            <textarea
+                              value={reviewDescription}
+                              onChange={(e) => setReviewDescription(e.target.value)}
+                              placeholder="Enter your observations about the animal's health, condition, or any additional notes..."
+                              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-lg"
+                              rows={4}
+                            />
+                          </div>
+                          <div className="flex gap-4">
+                            <button 
+                              onClick={handleSubmitReview}
+                              className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
+                            >
+                              <CheckCircle className="h-5 w-5" />
+                              Submit Review
+                            </button>
+                            <button 
+                              onClick={handleCancelReview}
+                              className="flex-1 flex items-center justify-center gap-3 bg-gray-200 text-gray-800 py-3 px-6 rounded-xl hover:bg-gray-300 transition-all duration-200 font-semibold text-lg"
+                            >
+                              <XCircle className="h-5 w-5" />
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                       </div>
                     )}
 
+                  {/* Breed Selection Modal */}
                     {showBreedInfo && (
-                      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                        <div className="flex items-center justify-between mb-4">
-                          <h2 className="text-xl font-semibold text-gray-800">Select Correct Breed</h2>
+                    <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-lg">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-800">Select Correct Breed</h2>
                           <button 
                             onClick={() => setShowBreedInfo(false)}
-                            className="text-gray-500 hover:text-gray-700"
+                          className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           >
-                            <X className="h-5 w-5" />
+                          <X className="h-6 w-6" />
                           </button>
                         </div>
 
-                        <div className="relative mb-4">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <div className="relative mb-6">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                           <input
                             type="text"
                             placeholder="Search breeds..."
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                           />
                         </div>
 
-                        <div className="flex border-b border-gray-200 mb-4">
+                      <div className="flex border-b border-gray-200 mb-6">
                           <button 
-                            className={`px-4 py-2 font-medium text-sm ${activeLivestockTab === 'cattle' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'}`}
+                          className={`px-6 py-3 font-semibold text-lg ${activeLivestockTab === 'cattle' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'}`}
                             onClick={() => setActiveLivestockTab('cattle')}
                           >
                             Cattle Breeds
                           </button>
                           <button 
-                            className={`px-4 py-2 font-medium text-sm ${activeLivestockTab === 'buffalo' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'}`}
+                          className={`px-6 py-3 font-semibold text-lg ${activeLivestockTab === 'buffalo' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-500'}`}
                             onClick={() => setActiveLivestockTab('buffalo')}
                           >
                             Buffalo Breeds
@@ -794,21 +709,21 @@ const Dashboard = () => {
                           {filteredBreeds.map(breed => (
                             <div 
                               key={breed.id} 
-                              className="p-3 border-b border-gray-200 hover:bg-green-50 cursor-pointer transition-colors flex items-start group"
+                            className="p-4 border-b border-gray-200 hover:bg-green-50 cursor-pointer transition-colors flex items-start group rounded-lg mb-2"
                               onClick={() => handleBreedSelection(breed)}
                             >
-                              <div className="w-12 h-12 bg-gray-200 rounded-md overflow-hidden mr-3 flex-shrink-0">
+                            <div className="w-16 h-16 bg-gray-200 rounded-xl overflow-hidden mr-4 flex-shrink-0 shadow-sm">
                                 <img src={breed.image} alt={breed.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                               </div>
                               <div className="flex-1">
                                 <div className="flex justify-between items-start">
-                                  <h3 className="font-medium text-gray-800">{breed.name}</h3>
-                                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                <h3 className="font-semibold text-gray-800 text-lg">{breed.name}</h3>
+                                <span className="text-sm px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
                                     {breed.type}
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-600">{breed.origin}</p>
-                                <p className="text-xs text-gray-500 mt-1">{breed.characteristics.substring(0, 60)}...</p>
+                              <p className="text-gray-600 text-lg">{breed.origin}</p>
+                              <p className="text-gray-500 mt-1">{breed.characteristics.substring(0, 80)}...</p>
                               </div>
                             </div>
                           ))}
@@ -816,7 +731,150 @@ const Dashboard = () => {
                       </div>
                     )}
                   </div>
+
+                {/* Services Section */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                  {/* Knowledge Centre Section */}
+                  <div className="bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-2xl p-8 border border-green-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="flex items-center mb-6">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                        <BookOpen className="h-6 w-6 text-white" />
                 </div>
+                      <h2 className="text-2xl font-bold text-gray-800">Knowledge Centre</h2>
+                    </div>
+                    <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                      Access articles, best practices, and breed-specific information to enhance your fieldwork.
+                    </p>
+                    <div className="space-y-4 mb-6">
+                      <div className="flex items-center p-4 hover:bg-white rounded-xl cursor-pointer transition-all duration-200 group shadow-sm hover:shadow-md">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:bg-green-100 transition-colors">
+                          <Heart className="h-6 w-6 text-green-600" />
+                        </div>
+                        <span className="font-semibold text-gray-800 text-lg">Animal Health & Nutrition</span>
+                      </div>
+                      <div className="flex items-center p-4 hover:bg-white rounded-xl cursor-pointer transition-all duration-200 group shadow-sm hover:shadow-md">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:bg-green-100 transition-colors">
+                          <Activity className="h-6 w-6 text-green-600" />
+                        </div>
+                        <span className="font-semibold text-gray-800 text-lg">Breeding Best Practices</span>
+                      </div>
+                      <div className="flex items-center p-4 hover:bg-white rounded-xl cursor-pointer transition-all duration-200 group shadow-sm hover:shadow-md">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:bg-green-100 transition-colors">
+                          <Shield className="h-6 w-6 text-green-600" />
+                        </div>
+                        <span className="font-semibold text-gray-800 text-lg">Disease Prevention</span>
+                      </div>
+                    </div>
+                    <button className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-green-600 to-green-700 text-white py-4 px-6 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl">
+                      Explore More <ArrowRight className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Services Section */}
+                  <div className="bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 rounded-2xl p-8 border border-blue-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="flex items-center mb-6">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                        <ClipboardList className="h-6 w-6 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-800">Services</h2>
+                    </div>
+                    <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                      Find information on vaccination schedules, breeding services, and more.
+                    </p>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="bg-white rounded-xl p-4 text-center cursor-pointer hover:bg-blue-100 transition-all duration-200 shadow-md hover:shadow-lg group">
+                        <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                        <span className="font-semibold text-blue-800 text-lg">Vaccination</span>
+                      </div>
+                      <div className="bg-white rounded-xl p-4 text-center cursor-pointer hover:bg-blue-100 transition-all duration-200 shadow-md hover:shadow-lg group">
+                        <Activity className="h-8 w-8 text-blue-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                        <span className="font-semibold text-blue-800 text-lg">Breeding</span>
+                      </div>
+                      <div className="bg-white rounded-xl p-4 text-center cursor-pointer hover:bg-blue-100 transition-all duration-200 shadow-md hover:shadow-lg group">
+                        <Heart className="h-8 w-8 text-blue-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                        <span className="font-semibold text-blue-800 text-lg">Health</span>
+                      </div>
+                      <div className="bg-white rounded-xl p-4 text-center cursor-pointer hover:bg-blue-100 transition-all duration-200 shadow-md hover:shadow-lg group">
+                        <Database className="h-8 w-8 text-blue-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                        <span className="font-semibold text-blue-800 text-lg">Records</span>
+                      </div>
+                    </div>
+                    <button className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl">
+                      Explore More <ArrowRight className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Reports Section */}
+                  <div className="bg-gradient-to-br from-purple-50 via-purple-100 to-purple-200 rounded-2xl p-8 border border-purple-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="flex items-center mb-6">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                        <BarChart3 className="h-6 w-6 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-800">Reports</h2>
+                    </div>
+                    <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                      Generate and view reports on livestock health and productivity.
+                    </p>
+                    <div className="space-y-4 mb-6">
+                      <div className="flex items-center p-4 hover:bg-white rounded-xl cursor-pointer transition-all duration-200 group shadow-sm hover:shadow-md">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:bg-purple-100 transition-colors">
+                          <FileText className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <span className="font-semibold text-gray-800 text-lg">Monthly Identification Report</span>
+                      </div>
+                      <div className="flex items-center p-4 hover:bg-white rounded-xl cursor-pointer transition-all duration-200 group shadow-sm hover:shadow-md">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:bg-purple-100 transition-colors">
+                          <TrendingUp className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <span className="font-semibold text-gray-800 text-lg">Breed Popularity Analysis</span>
+                      </div>
+                      <div className="flex items-center p-4 hover:bg-white rounded-xl cursor-pointer transition-all duration-200 group shadow-sm hover:shadow-md">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mr-4 shadow-md group-hover:bg-purple-100 transition-colors">
+                          <Users className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <span className="font-semibold text-gray-800 text-lg">Field Worker Performance</span>
+                      </div>
+                    </div>
+                    <button className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white py-4 px-6 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl">
+                      Explore More <ArrowRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Recent Identifications Section */}
+                {recentIdentifications.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 mb-8">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-2xl font-bold text-gray-800 flex items-center">
+                        <Clock className="h-6 w-6 mr-3 text-green-600" />
+                        Recent Identifications
+                      </h3>
+                      <button className="text-lg text-green-600 hover:text-green-800 font-semibold flex items-center bg-green-50 hover:bg-green-100 px-4 py-2 rounded-xl transition-colors">
+                        View All <ChevronRight className="h-5 w-5 ml-2" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {recentIdentifications.map((item) => (
+                        <div key={item.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 flex items-center space-x-4 border border-gray-200 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1">
+                          <div className="w-16 h-16 bg-white rounded-2xl overflow-hidden flex-shrink-0 shadow-md">
+                            <img src={item.image} alt={item.breed} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-800 text-lg truncate">{item.breed}</p>
+                            <div className="flex items-center text-gray-600 mt-1">
+                              <Clock className="h-4 w-4 mr-2" />
+                              <span className="text-sm">{new Date(item.timestamp).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-bold px-3 py-2 rounded-full shadow-md">
+                            {item.confidence}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               </>
             )}
 

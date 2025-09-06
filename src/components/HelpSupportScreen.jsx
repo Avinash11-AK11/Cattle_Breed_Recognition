@@ -321,42 +321,7 @@ const HelpSupportScreen = () => {
               )}
             </div>
 
-            {/* Tutorials Section */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-800 mb-6">Learning Resources</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {tutorials.map((tutorial) => {
-                  const Icon = tutorial.icon;
-                  return (
-                    <div key={tutorial.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-start mb-3">
-                        <div className="p-2 bg-blue-100 rounded-lg mr-3">
-                          <Icon className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-gray-800">{tutorial.title}</h3>
-                          <p className="text-sm text-gray-600 flex items-center mt-1">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {tutorial.duration}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-3">{tutorial.description}</p>
-                      <button className="w-full flex items-center justify-center text-sm text-blue-600 hover:text-blue-800 font-medium py-2 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
-                        {tutorial.type === 'video' ? 'Watch Tutorial' : 'Read Article'}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <button className="w-full flex items-center justify-center text-green-600 hover:text-green-800 font-medium py-2">
-                  View All Resources <ChevronRight className="h-4 w-4 ml-1" />
-                </button>
-              </div>
-            </div>
+            
 
             {/* Contact Form Section */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
