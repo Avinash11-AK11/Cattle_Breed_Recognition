@@ -438,103 +438,10 @@ const HelpSupportScreen = () => {
               </div>
             </div>
 
-            {/* System Status */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">System Status</h2>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-gray-700">Application</span>
-                  <div className="flex items-center text-green-600">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    <span>Operational</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                  <span className="text-gray-700">API Services</span>
-                  <div className="flex items-center text-green-600">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    <span>Operational</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                  <span className="text-gray-700">Database</span>
-                  <div className="flex items-center text-green-600">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    <span>Operational</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                  <span className="text-gray-700">Sync Services</span>
-                  <div className="flex items-center text-amber-600">
-                    <AlertCircle className="h-4 w-4 mr-1" />
-                    <span>Partial Outage</span>
-                  </div>
-                </div>
-              </div>
+            
+            
 
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600">Last updated: Today, 10:45 AM</p>
-                <button className="text-sm text-green-600 hover:text-green-800 font-medium mt-2">
-                  View Status History
-                </button>
-              </div>
-            </div>
-
-            {/* Emergency Support */}
-            <div className="bg-red-50 rounded-xl shadow-sm p-6 border border-red-200">
-              <h2 className="text-xl font-semibold text-red-800 mb-4">Emergency Support</h2>
-              
-              <p className="text-red-700 mb-4">
-                For critical issues affecting field work or data integrity that require immediate attention.
-              </p>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-red-800 font-medium">Emergency Hotline</span>
-                  <span className="text-red-800">+91-1800-765-4321</span>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-red-800 font-medium">Available</span>
-                  <span className="text-red-800">24/7</span>
-                </div>
-              </div>
-
-              <button className="w-full mt-4 bg-red-600 text-white py-2.5 rounded-lg hover:bg-red-700 transition-colors font-medium">
-                Call Emergency Line
-              </button>
-            </div>
-
-            {/* Download Resources */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Download Resources</h2>
-              
-              <div className="space-y-3">
-                <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <span>User Manual PDF</span>
-                  <Download className="h-5 w-5 text-gray-500" />
-                </button>
-                
-                <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <span>Field Guide Handbook</span>
-                  <Download className="h-5 w-5 text-gray-500" />
-                </button>
-                
-                <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <span>Data Collection Forms</span>
-                  <Download className="h-5 w-5 text-gray-500" />
-                </button>
-                
-                <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <span>Breed Identification Guide</span>
-                  <Download className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-            </div>
+            
           </div>
         </div>
     </div>
